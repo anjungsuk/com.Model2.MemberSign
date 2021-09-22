@@ -1,3 +1,2 @@
-# com.Model2.MemberSign
-# com.Model2.MemberSign
-# com.Model2.MemberSign
+# Model2 방식으로 구현한 
+
