@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/">
+    <Resource
+            auth ="Container"
+            driverClassName="org.mariadb.jdbc.Driver"
+            url="jdbc:mariadb://localhost:3306/t_list"
+            username = "root"
+            password = "armata2729"
+            name = "jdbc/mariadb"
+            type = "javax.sql.DataSource"
+            maxActive = "20"
+            MaxWait ="10000"
+    />
+</Context>
