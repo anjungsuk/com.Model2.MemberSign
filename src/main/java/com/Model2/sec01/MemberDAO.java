@@ -43,7 +43,7 @@ public class MemberDAO {
         try{
             conn = dataFactory.getConnection();
 
-            String query = "select * from t_member order by id desc";
+            String query = "select * from t_member order by joinDate desc";
             pstmt = conn.prepareStatement(query);
             rs = pstmt.executeQuery();
 
