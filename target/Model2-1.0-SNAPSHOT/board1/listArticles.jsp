@@ -56,7 +56,7 @@
         </c:if>
         </tbody>
     </table>
-    <a href="#"><p>글쓰기</p></a>
+    <a href="${contextPath}/borad/articleForm.do"><p>글쓰기</p></a>
 </div>
 
 </body>

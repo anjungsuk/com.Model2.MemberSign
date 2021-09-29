@@ -13,4 +13,13 @@ public class BoradService {
         List<ArticleVO> articleList = boradDAO.selectAllArticles();
         return articleList;
     }
+    public int addArticle(ArticleVO articleVO){
+      return boradDAO.insertNewArticle(articleVO);
+    }
+    public ArticleVO viewArticle(int articleNO)
+    {
+        ArticleVO article = null;
+        article = boradDAO.selectArticle(articleNO);
+        return article;
+    }
 }
