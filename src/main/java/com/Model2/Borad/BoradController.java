@@ -88,14 +88,10 @@ public class BoradController extends HttpServlet {
                 }
 
                 PrintWriter pw = response.getWriter();
-                pw.print("<script>" + "alert('새글을 등록 하였습니다.');"+"location.href = '" + request.getContextPath() + "/board/listArticles.do'"+"</script>");
+                pw.print("<script>" + "alert('새글을 등록 하였습니다.');"+"location.href = '" + request.getContextPath() + "/borad/listArticles.do'"+"</script>");
 
                 return;
 
-
-                //boradService.addArticle(articleVO);
-
-                //nextPage = "/board1/listArticles.jsp";
             }
             else if(action.equals("/viewArticle.do"))
             {
@@ -103,6 +99,66 @@ public class BoradController extends HttpServlet {
                 articleVO = boradService.viewArticle(Integer.parseInt(articleNO));
                 request.setAttribute("article", articleVO);
                 nextPage = "/board1/viewArticle.jsp";
+            }
+            else if(action.equals("/modArticle.do"))
+            {
+                //2021.10.04 수정 부분 작업 진행 중
+                Map<String, String> articleMap = upload(request, response);
+                int articleNO = Integer.parseInt(articleMap.get("articleNO"));
+                articleVO.setArticleNO(articleNO);
+                String title = articleMap.get("title");
+                String content = articleMap.get("content");
+                String imageFileName = articleMap.get("imageFileName");
+                System.out.println(imageFileName);
+                articleVO.setParentNO(0);
+                articleVO.setId("hong");
+                articleVO.setTitle(title);
+                articleVO.setContent(content);
+                articleVO.setImageFileName(imageFileName);
+
+                boradService.modArticle(articleVO);
+
+                if(imageFileName != null && imageFileName.length() !=0)
+                {
+                    String originalFileName = articleMap.get("originalFileName");
+                    //수정된 파일 경로 이동
+                    File srcFile = new File(ARTICLE_IMAGE_REPO +"/" + "temp" + "/" + imageFileName);
+                    File destDir = new File(ARTICLE_IMAGE_REPO +"/"+"/"+articleNO);
+                    destDir.mkdirs();
+                    FileUtils.moveFileToDirectory(srcFile, destDir, true);
+
+                    //구 폴더 이미지 파일 삭제
+                    File oldFile = new File(ARTICLE_IMAGE_REPO + "/" + articleNO + "/" + originalFileName);
+                    oldFile.delete();
+                }
+                PrintWriter pw = response.getWriter();
+                pw.print("<script>" + "  alert('글을 수정했습니다.');" + " location.href='" + request.getContextPath()
+                        + "/borad/viewArticle.do?articleNO=" + articleNO + "';" + "</script>");
+
+                return;
+            }
+            else if(action.equals("/removeArticle.do"))
+            {
+                int articleNO = Integer.parseInt(request.getParameter("articleNO"));
+
+                List<Integer> articleNOList = boradService.removeArticle(articleNO);
+
+                for (int _articleNO : articleNOList)
+                {
+                    File imgDir = new File(ARTICLE_IMAGE_REPO + "/" + _articleNO);
+
+                    if(imgDir.exists())
+                    {
+                        FileUtils.deleteDirectory(imgDir);
+                    }
+                }
+
+                PrintWriter pw = response.getWriter();
+                pw.print("<script>" + "  alert('글을 삭제했습니다.');" + " location.href='" + request.getContextPath()
+                        + "/borad/listArticles.do';" + "</script>");
+
+                return;
+
             }
             RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
             dispatcher.forward(request, response);

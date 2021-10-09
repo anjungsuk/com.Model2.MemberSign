@@ -14,23 +14,6 @@
 <c:set var="contextPath" value="${pageContext.request.contextPath}"></c:set>
 
 <%@include file="/Header/Header.jsp"%>
-<script type="text/javascript">
-    function readURL(input)
-    {
-        if(input.files && input.files[0])
-        {
-            var reader = new FileReader();
-            reader.onload = function(e){
-                $("#preview").attr('src', e.target.result);
-            }
-            reader.readAsDataURL(input.files[0])
-        }
-    }
-    function backToList(obj){
-        obj.action = "${contextPath}/board/listArticles.do";
-        obj.submit();
-    }
-</script>
 <body>
     <h1><strong>신규 글 작성</strong></h1>
     <form name="articleForm" method="post" action="${contextPath}/borad/addArticle.do" enctype="multipart/form-data">

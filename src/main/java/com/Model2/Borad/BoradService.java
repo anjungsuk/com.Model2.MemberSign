@@ -22,4 +22,17 @@ public class BoradService {
         article = boradDAO.selectArticle(articleNO);
         return article;
     }
+
+    public void modArticle(ArticleVO articleVO)
+    {
+        boradDAO.updateArticle(articleVO);
+    }
+
+
+    public List<Integer> removeArticle(int articleNO)
+    {
+        List<Integer> articleNOList = boradDAO.selectRemovedArticles(articleNO);
+        boradDAO.deleteArticle(articleNO);
+        return articleNOList;
+    }
 }

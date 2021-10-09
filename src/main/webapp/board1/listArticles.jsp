@@ -49,7 +49,7 @@
                         </c:choose>
                     </td>
                     <td>
-                        <fmt:formatDate value="${article.writedate}"></fmt:formatDate>
+                        ${article.writedate}
                     </td>
                 </tr>
             </c:forEach>
