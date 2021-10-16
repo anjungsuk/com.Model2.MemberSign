@@ -11,10 +11,7 @@ import javax.servlet.annotation.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @WebServlet(value = "/borad/*")
 public class BoradController extends HttpServlet {
@@ -45,6 +42,7 @@ public class BoradController extends HttpServlet {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html; charset=utf-8");
         String action = request.getPathInfo();
+        HttpSession session;
 
 
         try {
@@ -57,8 +55,43 @@ public class BoradController extends HttpServlet {
 
             }else if(action.equals("/listArticles.do")){
 
-                articlesList = boradService.listArticles();
+                int pageNum;
+                int pageAmount;
+
+                String PageNumber = request.getParameter("page");
+                if(PageNumber != null)
+                {
+                    pageNum = Integer.parseInt(PageNumber.trim());
+                }
+                else
+                {
+                    pageNum = 1;
+                }
+
+                String PageAmount = request.getParameter("amount");
+
+                if(PageAmount != null)
+                {
+                    pageAmount = Integer.parseInt(PageAmount.trim());
+                }
+                else
+                {
+                    pageAmount = 10;
+                }
+
+
+                // 1 ~10 잘 전달 받음,,
+                PageVO page = new PageVO(pageNum, pageAmount);
+
+                //총 컬럼 수 14 잘 전달 받음
+                int total = boradService.getTotal();
+
+                articlesList = boradService.getList(page);
+
                 request.setAttribute("articlesList", articlesList);
+
+                request.setAttribute("page", new PageOper(page, total));
+
                 nextPage ="/board1/listArticles.jsp";
 
             }else if(action.equals("/articleForm.do")){
@@ -109,7 +142,7 @@ public class BoradController extends HttpServlet {
                 String title = articleMap.get("title");
                 String content = articleMap.get("content");
                 String imageFileName = articleMap.get("imageFileName");
-                System.out.println(imageFileName);
+
                 articleVO.setParentNO(0);
                 articleVO.setId("hong");
                 articleVO.setTitle(title);
@@ -160,6 +193,73 @@ public class BoradController extends HttpServlet {
                 return;
 
             }
+            else if(action.equals("/replyForm.do"))
+            {
+                // 파라미터 요청 통한 부모 인덱스 전달
+                String parent = request.getParameter("test");
+                if(parent == null)
+                {
+                    parent = "0";
+                }
+                int parentNO = Integer.parseInt(parent);
+
+
+
+                // session내 부모 인덱스 저장
+                session = request.getSession();
+                session.setAttribute("parentNO", parentNO);
+
+                nextPage = "/board1/replyForm.jsp";
+
+            }
+            else if(action.equals("/addReply.do"))
+            {
+                session = request.getSession();
+
+                int parentNO = (Integer) session.getAttribute("parentNO");
+
+
+                session.removeAttribute("parentNO");
+                Map<String, String> articleMap = upload(request, response);
+
+                String title = articleMap.get("title");
+                String content = articleMap.get("content");
+                String imageFileName = articleMap.get("imageFileName");
+
+                articleVO.setParentNO(parentNO);
+                articleVO.setTitle("lee");
+                articleVO.setTitle(title);
+                articleVO.setContent(content);
+                articleVO.setImageFileName(imageFileName);
+
+                int articleNO = boradService.addReply(articleVO);
+
+                if(imageFileName != null && imageFileName.length() != 0)
+                {
+                    File srcFile = new File(ARTICLE_IMAGE_REPO + "/" + "temp" + "/" + imageFileName);
+                    File desDir = new File(ARTICLE_IMAGE_REPO + "/" + articleNO);
+
+                    desDir.mkdirs();
+                    FileUtils.moveFileToDirectory(srcFile, desDir, true);
+                }
+                PrintWriter pw = response.getWriter();
+                pw.print("<script>" +
+                        "alert('답글을 추가 하였습니다.');" +
+                        "location.href = '" +
+                        request.getContextPath()+
+                        "/borad/listArticles.do';" +
+                        "</script>");
+                return;
+
+            }
+            else if(action.equals("/listArticles.do"))
+            {
+
+
+                nextPage = "/board1/listArticles.jsp";
+
+
+            }
             RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
             dispatcher.forward(request, response);
 
@@ -187,7 +287,7 @@ public class BoradController extends HttpServlet {
 
                 if(fileItem.isFormField())
                 {
-                    System.out.println(fileItem.getFieldName() + "=" + fileItem.getString());
+
                     articleMap.put(fileItem.getFieldName(), fileItem.getString(encoding));
                 }
                 else
@@ -204,7 +304,7 @@ public class BoradController extends HttpServlet {
                         String fileName = fileItem.getName().substring(idx+1);
                         articleMap.put(fileItem.getFieldName(), fileName);
                         File uploadFile = new File(currentDirPath +"/temp/"+ fileName);
-                        System.out.println(uploadFile);
+
                         fileItem.write(uploadFile);
                     }
                 }

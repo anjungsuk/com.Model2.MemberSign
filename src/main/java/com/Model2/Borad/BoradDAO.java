@@ -130,7 +130,7 @@ public class BoradDAO {
                     "    on a.parentNO = cte.articleNO\n" +
                     ")\n" +
                     "select articleNO, parentNO, title, content, imageFileName, writeDate, id, level from cte"*/;
-            System.out.println(query);
+
             pstmt = conn.prepareStatement(query);
             rs = pstmt.executeQuery();
 
@@ -246,7 +246,7 @@ public class BoradDAO {
         try {
             conn = dataFactory.getConnection();
             String query = "call deletePost(?)";
-            System.out.println(query);
+
             pstmt = conn.prepareStatement(query);
             pstmt.setInt(1, articleNO);
             pstmt.executeUpdate();
@@ -309,6 +309,84 @@ public class BoradDAO {
         }
 
         return articleNOList;
+    }
+
+    public int getTotal()
+    {
+       try {
+           conn = dataFactory.getConnection();
+           String query = "select count(*) as total from t_board";
+
+           pstmt = conn.prepareStatement(query);
+           rs = pstmt.executeQuery();
+           rs.next();
+           int total = rs.getInt("total");
+
+           return rs.getInt("total");
+       }catch (Exception e){
+           e.printStackTrace();
+       }
+       return -1;
+    }
+
+    public List<ArticleVO> getList(PageVO page)
+    {
+        List<ArticleVO> list = new ArrayList<>();
+
+        try{
+            conn = dataFactory.getConnection();
+
+            String query = "SELECT CASE WHEN LEVEL-1 > 0 then CONCAT(CONCAT(REPEAT('    ', level  - 1),'┗'), board.title)\n" +
+                    "            ELSE board.title\n" +
+                    "    END AS title\n" +
+                    "     , board.articleNO\n" +
+                    "     , board.parentNO\n" +
+                    "     , board.content\n" +
+                    "     , board.imageFileName\n" +
+                    "     , board.writeDate\n" +
+                    "     , board.id\n" +
+                    "     , result.level\n" +
+                    "FROM\n" +
+                    "    (SELECT function_hierarchical() AS articleNO, @level AS level, title\n" +
+                    "     FROM (SELECT @start_with:=0, @articleNO:=@start_with, @level:=0) tbl JOIN t_board\n" +
+                    "     WHERE articleNO IS NOT NULL) result\n" +
+                    "        left outer join t_board board ON board.articleNO = result.articleNO\n" +
+                    "order by articleNO asc\n" +
+                    "limit ?, ?";
+            pstmt = conn.prepareStatement(query);
+
+            pstmt.setInt(1, page.getSkip());
+            pstmt.setInt(2, page.getAmount());
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next())
+            {
+                int level = rs.getInt("level");
+                int articleNO = rs.getInt("articleNO");
+                int parentNO = rs.getInt("parentNO");
+                String title = rs.getString("title");
+                String content = rs.getString("content");
+                String Id = rs.getString("id");
+                Date writedate = rs.getDate("writedate");
+
+                ArticleVO articleVO = new ArticleVO();
+                articleVO.setLevel(level);
+                articleVO.setArticleNO(articleNO);
+                articleVO.setParentNO(parentNO);
+                articleVO.setTitle(title);
+                articleVO.setContent(content);
+                articleVO.setId(Id);
+                articleVO.setWritedate(writedate);
+
+                list.add(articleVO);
+            }
+
+            return list;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

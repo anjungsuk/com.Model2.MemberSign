@@ -56,6 +56,27 @@
         </c:if>
         </tbody>
     </table>
+    <div>
+        <p align="center">
+            <b>
+                <span style = "font-size: 9pt;">
+
+                    <c:if test="${page.prev}">
+                        <a href ="/borad/listArticles.do?page=${page.startPage -1}">[이전]</a>
+                    </c:if>
+
+                    <c:forEach var="num" begin="${page.startPage}" end="${page.endPage}">
+                        <a href="/borad/listArticles.do?page=${num}">${num}</a>
+                    </c:forEach>
+
+                    <c:if test="${page.next}">
+                        <a href="/borad/listArticles.do?page=${page.endPage + 1}">다음 페이지</a>
+                    </c:if>
+                </span>
+            </b>
+
+        </p>
+    </div>
     <a href="${contextPath}/borad/articleForm.do"><p>글쓰기</p></a>
 </div>
 

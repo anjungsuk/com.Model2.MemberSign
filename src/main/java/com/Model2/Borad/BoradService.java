@@ -35,4 +35,17 @@ public class BoradService {
         boradDAO.deleteArticle(articleNO);
         return articleNOList;
     }
+    public int addReply(ArticleVO articleVO)
+    {
+        return boradDAO.insertNewArticle(articleVO);
+    }
+
+    public int getTotal(){
+        return boradDAO.getTotal();
+    }
+
+    public List<ArticleVO> getList(PageVO page)
+    {
+        return boradDAO.getList(page);
+    }
 }

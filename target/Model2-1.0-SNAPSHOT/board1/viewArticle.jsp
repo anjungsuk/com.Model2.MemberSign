@@ -38,6 +38,19 @@
         form.submit();
 
     }
+    function fn_reply_form(url, parentNO)
+    {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", url);
+        var parentNOInput = document.createElement("input");
+        parentNOInput.setAttribute("type","hidden");
+        parentNOInput.setAttribute("name","test");
+        parentNOInput.setAttribute("value", parentNO);
+        form.appendChild(parentNOInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 
 <body>
@@ -54,8 +67,8 @@
                     </td>
                     <td >
                         <input class="form-control" type="text"  value="${article.articleNO }"  disabled />
-                        <input type="hidden" name="articleNO" value="${article.articleNO}"/>
-                        <input type="hidden" name="parentNO" value="${article.parentNO}"/>
+                        <input type="hidden" value="${article.articleNO}"/>
+
                     </td>
                 </tr>
                 <tr>
@@ -122,13 +135,11 @@
                         <input type=button value="수정하기" onClick="fn_enable(this.form)">
                         <input type=button value="삭제하기" onClick="fn_remove_article('${contextPath}/borad/removeArticle.do', ${article.articleNO})">
                         <input type=button value="리스트로 돌아가기"  onClick="backToList(this.form)">
-                        <input type=button value="답글쓰기"  onClick="fn_reply_form('${contextPath}/board/replyForm.do', ${article.articleNO})">
+                        <input type=button value="답글쓰기"  onClick="fn_reply_form('${contextPath}/borad/replyForm.do', ${article.articleNO})">
                     </td>
                 </tr>
             </table>
         </form>
-
-
     </div>
 <%--<form name="frmArticle" method="post"  action="${contextPath}"  enctype="multipart/form-data">
 
